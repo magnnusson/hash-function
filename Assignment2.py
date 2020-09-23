@@ -33,24 +33,28 @@ def parse_user_input():
 
   return new_string
 
+def right_rotate(num, rot, num_bit):
+    return (num >> rot)|(num << (num_bit - rot)) & 0xFFFF
+
 def main():
   """This is the main function to run our program."""
+  # Constant number of bits that we want
+  NUM_BITS = 16
   constants_list = process_primes(prime_list) # This list will hold our constants that we calculate at the beginning
-
+  
   user_string = parse_user_input() # This list will hold the user string's characters, in ASCII, in binary
-
-    # This list will hold registers a-h for the scheduling portion
-    #   of the algorithm
-   # schedule = []
-    # This list will hold the newly calculated a-h that we will add
-    #   add to the old schedule
-   # schedule_new = []
-    # Temp 1 variable to hold the result of the temp 1 calculation
-   # t1 = 0
-    # Temp 2 variable
-   # t2 = 0
-    # List to hold the output from our encryption algorithm
-   # encrypt_result = []
+  # This list will hold registers a-h for the scheduling portion
+  #   of the algorithm
+  schedule = []
+  # This list will hold the newly calculated a-h that we will add
+  #   add to the old schedule
+  schedule_new = []
+  # Temp 1 variable to hold the result of the temp 1 calculation
+  t1 = 0
+  # Temp 2 variable
+  t2 = 0
+  # List to hold the output from our encryption algorithm
+  encrypt_result = []
 
 if __name__ == "__main__":
   main()
