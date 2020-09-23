@@ -24,3 +24,5 @@ def main():
     # List to hold the output from our encryption algorithm
     encrypt_result = []
   
+if __name__ == "__main__":
+    main()
