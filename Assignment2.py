@@ -4,6 +4,8 @@ prime_list = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,8
               139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,
               281,283,293,307,311] # a list of the first 64 prime numbers
 
+NUM_BITS = 16 # Constant number of bits that we want
+
 def process_primes(prime_list):
   cube_roots = [] #this will hold our cube roots
   constants = []
@@ -43,6 +45,23 @@ def pad_message(user_string):
 
   padded_string = int(user_string) # return the padded string
   return padded_string
+
+def split_block(msg_block):
+    divided_list = []
+    curr_string = ''
+    for i, num in enumerate(msg_block):
+        if i < 16:
+            curr_string += (str(num))
+        elif i % 16 == 0:
+            divided_list.append(curr_string)
+            curr_string = ''
+            curr_string += (str(num))
+        else:
+            curr_string += (str(num))
+    return divided_list
+
+def right_rotate(num, rot, num_bit):
+    return (num >> rot)|(num << (num_bit - rot)) & 0xFFFF
 
 def main():
   """This is the main function to run our program."""
