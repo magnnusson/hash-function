@@ -60,69 +60,99 @@ def split_block(msg_block):
             curr_string += (str(num))
     return divided_list
 
-def right_rotate(num, rot, num_bit):
-    return (num >> rot)|(num << (num_bit - rot)) & 0xFFFF
-  
+
+def create_message_schedule(divided_string):
+  while len(divided_string) <= 63: # stop once we reach 64 words
+    length_of_string = len(divided_string) # updating the value of the length
+    val1 = sigma1(divided_string[length_of_string-2]) # first we perform an upper-case sigma 1 rotation to this element
+    val2 = divided_string[length_of_string-7] # we just retrieve this element
+    val3 = sigma0(divided_string[length_of_string-31]) # we perform a lower-case sigma 0 rotation to this element
+    val4 = divided_string[length_of_string-32] # we just retrieve this element
+
+    sum = int(val1, 2) + int(val2, 2) + int(val3, 2) + int(val4, 2) # add the binary numbers together
+    bin_sum = bin(sum)[2:]
+    if len(bin_sum) > NUM_BITS:
+      bin_sum = bin_sum[len(bin_sum) - NUM_BITS:] # truncate to 16 bits if needed
+
+
+    divided_string.append(bin_sum) # append the binary sum to the end of the list
+
+  return divided_string
+
 def sigma0(curr_word):
-    word_val = int(curr_word, 2) # This will conver binary string into number
+    word_val = int(curr_word, 2)  # This will convert binary string into number
     temp1 = right_rotate(word_val, 7, NUM_BITS)
-    temp2 = right_rotate(word_val, 14, NUM_BITS) # Should be 18 however we are using 16 bit words
-    temp3 = word_val >> 3   # Shift word_val to the right 3 
-    temp1 = temp1 ^ temp2 # XOR temp1 with temp2
-    temp1 = temp1 ^ temp3 # XOR new temp1 with temp3
-    
+    temp2 = right_rotate(word_val, 14, NUM_BITS)  # Should be 18 however we are using 16 bit words
+    temp3 = word_val >> 3  # Shift word_val to the right 3
+    temp1 = temp1 ^ temp2  # XOR temp1 with temp2
+    temp1 = temp1 ^ temp3  # XOR new temp1 with temp3
+
     bin_num = bin(temp1)[2:]
-    
+
     if len(bin_num) < NUM_BITS:
-        temp_str = '0' * (NUM_BITS - len(bin_num))
-        temp_str += bin_num
-            
-    return temp_str
+      temp_str = '0' * (NUM_BITS - len(bin_num))
+      temp_str += bin_num
+      return temp_str
+    else:
+      return bin_num
+
 
 def sigma1(curr_word):
-    word_val = int(curr_word, 2)
-    temp1 = right_rotate(word_val, 13, NUM_BITS) # Should be 17 however we are using 16 bit words
-    temp2 = right_rotate(word_val, 15, NUM_BITS) # Should be 19 however we are using 16 bit words
-    temp3 = word_val >> 10   # Shift word_val to the right 3 
-    temp1 = temp1 ^ temp2 # XOR temp1 with temp2
-    temp1 = temp1 ^ temp3 # XOR new temp1 with temp3
-    
-    bin_num = bin(temp1)[2:]
-    if len(bin_num) < NUM_BITS:
-        temp_str = '0' * (NUM_BITS - len(bin_num))
-        temp_str += bin_num
-            
-    return temp_str
-  
-def upper_sigma0(curr_word):
-    word_val = int(curr_word, 2)
-    temp1 = right_rotate(word_val, 2, NUM_BITS) 
-    temp2 = right_rotate(word_val, 13, NUM_BITS) 
-    temp3 = right_rotate(word_val, 14, NUM_BITS) # Should be 22 however we are using 16 bit words
-    temp1 = temp1 ^ temp2 # XOR temp1 with temp2
-    temp1 = temp1 ^ temp3 # XOR new temp1 with temp3
-    
-    bin_num = bin(temp1)[2:]
-    if len(bin_num) < NUM_BITS:
-        temp_str = '0' * (NUM_BITS - len(bin_num))
-        temp_str += bin_num
-            
-    return temp_str
+  word_val = int(curr_word, 2)
+  temp1 = right_rotate(word_val, 13, NUM_BITS)  # Should be 17 however we are using 16 bit words
+  temp2 = right_rotate(word_val, 15, NUM_BITS)  # Should be 19 however we are using 16 bit words
+  temp3 = word_val >> 10  # Shift word_val to the right 3
+  temp1 = temp1 ^ temp2  # XOR temp1 with temp2
+  temp1 = temp1 ^ temp3  # XOR new temp1 with temp3
 
-def upper_sigma1(curr_word):
-    word_val = int(curr_word, 2)
-    temp1 = right_rotate(word_val, 6, NUM_BITS) 
-    temp2 = right_rotate(word_val, 11, NUM_BITS) 
-    temp3 = right_rotate(word_val, 15, NUM_BITS) # Should be 25 however we are using 16 bit words 
-    temp1 = temp1 ^ temp2 # XOR temp1 with temp2
-    temp1 = temp1 ^ temp3 # XOR new temp1 with temp3
-    
-    bin_num = bin(temp1)[2:]
-    if len(bin_num) < NUM_BITS:
-        temp_str = '0' * (NUM_BITS - len(bin_num))
-        temp_str += bin_num
-            
+  bin_num = bin(temp1)[2:]
+
+  if len(bin_num) < NUM_BITS:
+    temp_str = '0' * (NUM_BITS - len(bin_num))
+    temp_str += bin_num
     return temp_str
+  else:
+    return bin_num
+
+
+def intialize_state_registers():
+  state_registers = []
+  square_roots = []
+  for index, prime in enumerate(prime_list):
+    if index <= 7: # we only want the first 8 primes
+      prime = math.sqrt(prime)
+      square_roots.append(prime)
+
+  for index, square in enumerate(square_roots):
+    fraction = math.modf(square) # use modf to get the irrational part of the number
+    fraction = fraction[0]
+    fraction = fraction * (2 ** 16)  # multiply the fractional part by 2^16, truncate, and then convert to binary
+    fraction = int(fraction)
+    fraction = bin(fraction)[2:]
+    state_registers.append(fraction)  # we have our 8 state registers with initial hash values
+
+  return state_registers
+
+
+def compression(message_schedule, constants_list, state_registers):
+  for word, constant in zip(message_schedule, constants_list): # parallel iteration of the schedule and constants
+    val1 = uppercase_sigma_1(state_registers[4]) # take the uppercase sigma 1 rotation of register 'e', index 4
+    val2 = choice(state_registers[4], state_registers[5], state_registers[6]) # choosing 1 or 0 from either of these registers to create the value
+    val3 = state_registers[7] # the 'h' register value
+    val4 = constant # the current constant value
+    val5 = word # the current word value from the schedule
+    temp_word_1 = val1 + val2 + val3 + val4 + val5 # we have our first temp word
+
+    val6 = uppercase_sigma_0(state_register[0]) # take the uppercase sigma 0 rotation of register 'a', index 0
+    val7 = majority(state_registers[0], state_registers[1], state_registers[2]) # find max value between registers a, b, c
+    temp_word_2: val6 + val7 # we have our second temp word
+
+
+
+
+def right_rotate(num, rot, num_bit):
+    return (num >> rot)|(num << (num_bit - rot)) & 0xFFFF
+
 
 
 def main():
@@ -133,7 +163,10 @@ def main():
   len_message_in_binary = len(str(user_string))
   padded_string = pad_message(user_string)
   divided_string = split_block(padded_string)
-  #print(len(divided_string)) # the list should have 32 elements each 16 bits long
+  message_schedule = create_message_schedule(divided_string)
+  print(message_schedule)
+  state_registers = intialize_state_registers() # we'll now need the state registers intialized using the prime numbers
+  compression(message_schedule, constants_list, state_registers) # compress the words of the schedule into the registers
 
     # This list will hold registers a-h for the scheduling portion
     #   of the algorithm
