@@ -209,9 +209,7 @@ def choice(e, f, g):
     temp_list = []
     temp_str = ''
     which_index = 0
-    # list_e = e.split()
-    # list_f = f.split()
-    # list_g = g.split()
+    
     for index in range(0, len(e)):
         temp_list.append(e[index])
         temp_list.append(f[index])
