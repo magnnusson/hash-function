@@ -218,6 +218,18 @@ def choice(e, f, g):
         temp_str += temp_list[which_index]
         temp_list.clear()
     return temp_str
+  
+def majority(a, b, c):
+    temp_list = []
+    temp_str = ''
+    
+    for index in range(0, len(a)):
+        temp_list.append(a[index])
+        temp_list.append(b[index])
+        temp_list.append(c[index])
+        temp_str += max(set(temp_list), key = temp_list.count) # Finds the most frequent number in list
+        temp_list.clear()
+    return temp_str
 
 def main():
     """This is the main function to run our program."""
