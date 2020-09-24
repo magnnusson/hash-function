@@ -40,7 +40,7 @@ def pad_message(user_string):
   user_string = str(user_string) # first concatenate a 1 to the message
   user_string += '1'
 
-  while len(user_string) <= 447: # add 0s to the message until we have a length of 448
+  while len(user_string) <= 512: # add 448 0s to the message until we have a length of 512
     user_string += '0'
 
   padded_string = int(user_string) # return the padded string
@@ -49,7 +49,7 @@ def pad_message(user_string):
 def split_block(msg_block):
     divided_list = []
     curr_string = ''
-    for i, num in enumerate(msg_block):
+    for i, num in enumerate(str(msg_block)):
         if i < 16:
             curr_string += (str(num))
         elif i % 16 == 0:
@@ -70,6 +70,8 @@ def main():
   user_string = parse_user_input() # This list will hold the user string's characters, in ASCII, in binary
   len_message_in_binary = len(str(user_string))
   padded_string = pad_message(user_string)
+  divided_string = split_block(padded_string)
+  #print(len(divided_string)) # the list should have 32 elements each 16 bits long
 
     # This list will hold registers a-h for the scheduling portion
     #   of the algorithm
