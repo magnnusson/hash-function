@@ -177,6 +177,12 @@ def intialize_state_registers():
         fraction = fraction * (2 ** 16)  # multiply the fractional part by 2^16, truncate, and then convert to binary
         fraction = int(fraction)
         fraction = bin(fraction)[2:]
+        if len(fraction) > NUM_BITS:
+          fraction = fraction[len(fraction) - NUM_BITS:]  # truncate to 16 bits if needed
+        elif len(fraction) < NUM_BITS:
+          new_sum = '0' * (NUM_BITS - len(fraction))  # add more bits to equal 16 if needed
+          new_sum += fraction
+          fraction = new_sum
         state_registers.append(fraction)  # we have our 8 state registers with initial hash values
 
     return state_registers
@@ -269,6 +275,7 @@ def compression(message_schedule, constants_list, state_registers):
         new_sum += new_val
         new_val = new_sum
       state_registers[index] = new_val
+    state_registers = list(state_registers)
 
     return state_registers
 
