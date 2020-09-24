@@ -1,4 +1,5 @@
 import math
+from collections import deque
 import random
 
 prime_list = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103,
@@ -79,7 +80,11 @@ def create_message_schedule(divided_string):
         sum = int(val1, 2) + int(val2, 2) + int(val3, 2) + int(val4, 2)  # add the binary numbers together
         bin_sum = bin(sum)[2:]
         if len(bin_sum) > NUM_BITS:
-            bin_sum = bin_sum[len(bin_sum) - NUM_BITS:]  # truncate to 16 bits if needed
+          bin_sum = bin_sum[len(bin_sum) - NUM_BITS:]  # truncate to 16 bits if needed
+        elif len(bin_sum) < NUM_BITS:
+          new_sum = '0' * (NUM_BITS - len(bin_sum)) # add more bits to equal 16 if needed
+          new_sum += bin_sum
+          bin_sum = new_sum
 
         divided_string.append(bin_sum)  # append the binary sum to the end of the list
 
@@ -176,8 +181,34 @@ def intialize_state_registers():
 
     return state_registers
 
+def choice(e, f, g):
+  temp_list = []
+  temp_str = ''
+  which_index = 0
 
-'''def compression(message_schedule, constants_list, state_registers):
+  for index in range(0, len(e)):
+    temp_list.append(e[index])
+    temp_list.append(f[index])
+    temp_list.append(g[index])
+    which_index = random.randrange(0, 3)  # Generate a random number between 0-2
+    temp_str += temp_list[which_index]
+    temp_list.clear()
+  return temp_str
+
+def majority(a, b, c):
+    temp_list = []
+    temp_str = ''
+
+    for index in range(0, len(a)):
+      temp_list.append(a[index])
+      temp_list.append(b[index])
+      temp_list.append(c[index])
+      temp_str += max(set(temp_list), key=temp_list.count)  # Finds the most frequent number in list
+      temp_list.clear()
+    return temp_str
+
+def compression(message_schedule, constants_list, state_registers):
+    original_state_registers = state_registers # perserve original values of hashes
     for word, constant in zip(message_schedule, constants_list):  # parallel iteration of the schedule and constants
       val1 = upper_sigma1(state_registers[4])  # take the uppercase sigma 1 rotation of register 'e', index 4
       val2 = choice(state_registers[4], state_registers[5], state_registers[6])  # choosing 1 or 0 from either of these registers to create the value
@@ -189,47 +220,63 @@ def intialize_state_registers():
       temp_word_1 = bin(sum1)[2:]
       if len(temp_word_1) > NUM_BITS:
         temp_word_1 = temp_word_1[len(temp_word_1) - NUM_BITS:]  # truncate to 16 bits if needed
+      elif len(temp_word_1) < NUM_BITS:
+        new_sum = '0' * (NUM_BITS - len(temp_word_1))  # add more bits to equal 16 if needed
+        new_sum += temp_word_1
+        temp_word_1 = new_sum
 
       val6 = upper_sigma0(state_registers[0])  # take the uppercase sigma 0 rotation of register 'a', index 0
       val7 = majority(state_registers[0], state_registers[1], state_registers[2])  # find max value between registers a, b, c
-      temp_word_2: val6 + val7  # we have our second temp word
 
       sum2 = int(val6, 2) + int(val7, 2)  # add the binary numbers together
       temp_word_2 = bin(sum2)[2:]
       if len(temp_word_2) > NUM_BITS:
-        temp_word_2 = temp_word_2[len(temp_word_2) - NUM_BITS:]  # truncate to 16 bits if needed'''
+        temp_word_2 = temp_word_2[len(temp_word_2) - NUM_BITS:]  # truncate to 16 bits if needed
+      elif len(temp_word_2) < NUM_BITS:
+        new_sum = '0' * (NUM_BITS - len(temp_word_2))  # add more bits to equal 16 if needed
+        new_sum += temp_word_2
+        temp_word_2 = new_sum
 
+      temp_word_sum = int(temp_word_1, 2) + int(temp_word_2, 2) # add the temp words together
+      temp_word_sum = bin(temp_word_sum)[2:]
+      if len(temp_word_sum) > NUM_BITS:
+        temp_word_sum = temp_word_sum[len(temp_word_sum) - NUM_BITS:]  # truncate to 16 bits if needed
+      elif len(temp_word_sum) < NUM_BITS:
+        new_sum = '0' * (NUM_BITS - len(temp_word_sum))  # add more bits to equal 16 if needed
+        new_sum += temp_word_sum
+        temp_word_sum = new_sum
+
+      state_registers = deque(state_registers)
+      state_registers.rotate(1) # we now shift the registers down once
+      state_registers[0] = temp_word_sum # register 'a' becomes our temp_word_sum
+      state_registers[4] = int(state_registers[4], 2) + int(temp_word_1, 2) # add temp_word_1 to register 'e'
+      state_registers[4] = bin(state_registers[4])[2:]
+      if len(state_registers[4]) > NUM_BITS:
+        state_registers[4] = state_registers[4][len(state_registers[4]) - NUM_BITS:]  # truncate to 16 bits if needed
+      elif len(state_registers[4]) < NUM_BITS:
+        new_sum = '0' * (NUM_BITS - len(state_registers[4]))  # add more bits to equal 16 if needed
+        new_sum += state_registers[4]
+        state_registers[4] = new_sum
+                             # we repeat this process until all 64 words and constants have been iterated and compressed
+
+    for index, value in enumerate(state_registers): # finally, add the final hash values to the original hash values
+      new_val = int(value, 2) + int(original_state_registers[index], 2)
+      new_val = bin(new_val)[2:]
+      if len(new_val) > NUM_BITS:
+        new_val = new_val[len(new_val) - NUM_BITS:]  # truncate to 16 bits if needed
+      elif len(new_val) < NUM_BITS:
+        new_sum = '0' * (NUM_BITS - len(new_val))  # add more bits to equal 16 if needed
+        new_sum += new_val
+        new_val = new_sum
+      state_registers[index] = new_val
+
+    return state_registers
 
 
 
 def right_rotate(num, rot, num_bit):
     return (num >> rot) | (num << (num_bit - rot)) & 0xFFFF
-  
-def choice(e, f, g):
-    temp_list = []
-    temp_str = ''
-    which_index = 0
-    
-    for index in range(0, len(e)):
-        temp_list.append(e[index])
-        temp_list.append(f[index])
-        temp_list.append(g[index])
-        which_index = random.randrange(0,3) # Generate a random number between 0-2
-        temp_str += temp_list[which_index]
-        temp_list.clear()
-    return temp_str
-  
-def majority(a, b, c):
-    temp_list = []
-    temp_str = ''
-    
-    for index in range(0, len(a)):
-        temp_list.append(a[index])
-        temp_list.append(b[index])
-        temp_list.append(c[index])
-        temp_str += max(set(temp_list), key = temp_list.count) # Finds the most frequent number in list
-        temp_list.clear()
-    return temp_str
+
 
 def main():
     """This is the main function to run our program."""
@@ -240,9 +287,9 @@ def main():
     padded_string = pad_message(user_string)
     divided_string = split_block(padded_string)
     message_schedule = create_message_schedule(divided_string)
-    print(message_schedule)
     state_registers = intialize_state_registers()  # we'll now need the state registers intialized using the prime numbers
-    #compression(message_schedule, constants_list, state_registers)  # compress the words of the schedule into the registers
+    final_state_registers = compression(message_schedule, constants_list, state_registers)  # compress the words of the schedule into the registers
+    print(final_state_registers)
 
     # This list will hold registers a-h for the scheduling portion
     #   of the algorithm
