@@ -1,4 +1,5 @@
 import math
+import random
 
 prime_list = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103,
               107, 109, 113, 127, 131, 137,
@@ -203,7 +204,22 @@ def intialize_state_registers():
 
 def right_rotate(num, rot, num_bit):
     return (num >> rot) | (num << (num_bit - rot)) & 0xFFFF
-
+  
+def choice(e, f, g):
+    temp_list = []
+    temp_str = ''
+    which_index = 0
+    # list_e = e.split()
+    # list_f = f.split()
+    # list_g = g.split()
+    for index in range(0, len(e)):
+        temp_list.append(e[index])
+        temp_list.append(f[index])
+        temp_list.append(g[index])
+        which_index = random.randrange(0,3) # Generate a random number between 0-2
+        temp_str += temp_list[which_index]
+        temp_list.clear()
+    return temp_str
 
 def main():
     """This is the main function to run our program."""
