@@ -49,6 +49,7 @@ def main():
   constants_list = process_primes(prime_list) # This list will hold our constants that we calculate at the beginning
 
   user_string = parse_user_input() # This list will hold the user string's characters, in ASCII, in binary
+  len_message_in_binary = len(str(user_string))
   padded_string = pad_message(user_string)
 
     # This list will hold registers a-h for the scheduling portion
@@ -66,4 +67,3 @@ def main():
 
 if __name__ == "__main__":
   main()
-
