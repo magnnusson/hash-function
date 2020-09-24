@@ -93,6 +93,37 @@ def sigma1(curr_word):
         temp_str += bin_num
             
     return temp_str
+  
+def upper_sigma0(curr_word):
+    word_val = int(curr_word, 2)
+    temp1 = right_rotate(word_val, 2, NUM_BITS) 
+    temp2 = right_rotate(word_val, 13, NUM_BITS) 
+    temp3 = right_rotate(word_val, 14, NUM_BITS) # Should be 22 however we are using 16 bit words
+    temp1 = temp1 ^ temp2 # XOR temp1 with temp2
+    temp1 = temp1 ^ temp3 # XOR new temp1 with temp3
+    
+    bin_num = bin(temp1)[2:]
+    if len(bin_num) < NUM_BITS:
+        temp_str = '0' * (NUM_BITS - len(bin_num))
+        temp_str += bin_num
+            
+    return temp_str
+
+def upper_sigma1(curr_word):
+    word_val = int(curr_word, 2)
+    temp1 = right_rotate(word_val, 6, NUM_BITS) 
+    temp2 = right_rotate(word_val, 11, NUM_BITS) 
+    temp3 = right_rotate(word_val, 15, NUM_BITS) # Should be 25 however we are using 16 bit words 
+    temp1 = temp1 ^ temp2 # XOR temp1 with temp2
+    temp1 = temp1 ^ temp3 # XOR new temp1 with temp3
+    
+    bin_num = bin(temp1)[2:]
+    if len(bin_num) < NUM_BITS:
+        temp_str = '0' * (NUM_BITS - len(bin_num))
+        temp_str += bin_num
+            
+    return temp_str
+
 
 def main():
   """This is the main function to run our program."""
