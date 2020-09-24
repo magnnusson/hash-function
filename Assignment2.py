@@ -62,6 +62,37 @@ def split_block(msg_block):
 
 def right_rotate(num, rot, num_bit):
     return (num >> rot)|(num << (num_bit - rot)) & 0xFFFF
+  
+def sigma0(curr_word):
+    word_val = int(curr_word, 2) # This will conver binary string into number
+    temp1 = right_rotate(word_val, 7, NUM_BITS)
+    temp2 = right_rotate(word_val, 14, NUM_BITS) # Should be 18 however we are using 16 bit words
+    temp3 = word_val >> 3   # Shift word_val to the right 3 
+    temp1 = temp1 ^ temp2 # XOR temp1 with temp2
+    temp1 = temp1 ^ temp3 # XOR new temp1 with temp3
+    
+    bin_num = bin(temp1)[2:]
+    
+    if len(bin_num) < NUM_BITS:
+        temp_str = '0' * (NUM_BITS - len(bin_num))
+        temp_str += bin_num
+            
+    return temp_str
+
+def sigma1(curr_word):
+    word_val = int(curr_word, 2)
+    temp1 = right_rotate(word_val, 13, NUM_BITS) # Should be 17 however we are using 16 bit words
+    temp2 = right_rotate(word_val, 15, NUM_BITS) # Should be 19 however we are using 16 bit words
+    temp3 = word_val >> 10   # Shift word_val to the right 3 
+    temp1 = temp1 ^ temp2 # XOR temp1 with temp2
+    temp1 = temp1 ^ temp3 # XOR new temp1 with temp3
+    
+    bin_num = bin(temp1)[2:]
+    if len(bin_num) < NUM_BITS:
+        temp_str = '0' * (NUM_BITS - len(bin_num))
+        temp_str += bin_num
+            
+    return temp_str
 
 def main():
   """This is the main function to run our program."""
