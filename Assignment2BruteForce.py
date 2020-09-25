@@ -325,23 +325,27 @@ def main():
     word_list = []
     word_digest_list = []
     digest_list = []
+    curr_word = ''
     
     constants_list = process_primes(prime_list)  # This list will hold our constants that we calculate at the beginning
-    word_list = read_file("passwords.txt")
-    for word in word_list:
-        input_string = parse_word(word)
-        len_message_in_binary = len(str(input_string))
-        padded_string = pad_message(input_string)
-        divided_string = split_block(padded_string)
-        message_schedule = create_message_schedule(divided_string)
-        state_registers = intialize_state_registers()  # we'll now need the state registers intialized using the prime numbers
-        final_state_registers = compression(message_schedule, constants_list, state_registers)  # compress the words of the schedule into the registers
-        digest = get_digest(final_state_registers)
-        if digest in digest_list:
-            print("There was a similar hash of {}".format(digest))
-            
-        word_digest_list.append([word, digest])
-        digest_list.append(digest)
+    # word_list = read_file("passwords.txt")
+    for letter1 in range(65, 123): # Range is ascii value A - z to cycle through all letters
+        for letter2 in range(65,123):
+            for letter3 in range(65,123):
+                curr_word = (str(chr(letter1)) + str(chr(letter2)) + str(chr(letter3)))
+                input_string = parse_word(curr_word)
+                len_message_in_binary = len(str(input_string))
+                padded_string = pad_message(input_string)
+                divided_string = split_block(padded_string)
+                message_schedule = create_message_schedule(divided_string)
+                state_registers = intialize_state_registers()  # we'll now need the state registers intialized using the prime numbers
+                final_state_registers = compression(message_schedule, constants_list, state_registers)  # compress the words of the schedule into the registers
+                digest = get_digest(final_state_registers)
+                if digest in digest_list:
+                    print("There was a similar hash of {}".format(digest))
+                    
+                word_digest_list.append([curr_word, digest])
+                digest_list.append(digest)
 
     # This list will hold registers a-h for the scheduling portion
     #   of the algorithm
