@@ -31,13 +31,17 @@ def process_primes(prime_list):
 
 def parse_user_input():
     new_string = []  # we will hold the final values here
+    temp_str = ''
     user_string = input("Enter a string: ")
     user_string = [letter for letter in user_string]  # split the user's input into separate characters in a list
 
     for index, letter in enumerate(user_string):
         ascii_val = ord(letter)
         ascii_val = bin(ascii_val)[2:]
-        new_string.append(ascii_val)
+        if len(ascii_val) < (NUM_BITS // 2):
+            temp_str = '0' * ((NUM_BITS // 2) - len(ascii_val))
+            temp_str += ascii_val
+        new_string.append(temp_str)
         binary_val = ''.join(new_string)
 
     return binary_val
@@ -193,11 +197,17 @@ def choice(e, f, g):
   which_index = 0
 
   for index in range(0, len(e)):
-    temp_list.append(e[index])
-    temp_list.append(f[index])
-    temp_list.append(g[index])
-    which_index = random.randrange(0, 3)  # Generate a random number between 0-2
-    temp_str += temp_list[which_index]
+    temp_list.append(int(e[index]))
+    temp_list.append(int(f[index]))
+    temp_list.append(int(g[index]))
+    temp1 = (temp_list[0] & temp_list[1]) # e AND f saved in temp1
+    if temp_list[0] == 1: # Finding the "not e" value
+        temp2 = 0
+    else:
+        temp2 = 1
+    temp2 = (temp2 & temp_list[2]) # not e AND g saved in temp2
+    temp1 = temp1 ^ temp2 # temp1 equals temp1 and temp2 XORed
+    temp_str += str(temp1)
     temp_list.clear()
   return temp_str
 
