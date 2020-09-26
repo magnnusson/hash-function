@@ -52,18 +52,20 @@ def pad_message(user_string):
 
     while len(user_string) <= 512:  # add 448 0s to the message until we have a length of 512
         user_string += '0'
-
-    padded_string = int(user_string)  # return the padded string
-    return padded_string
+    
+    # David - Commented this out, thinking we should just leave as string
+    # padded_string = int(user_string)  # return the padded string
+    # return padded_string
+    return user_string
 
 
 def split_block(msg_block):
     divided_list = []
     curr_string = ''
     for i, num in enumerate(str(msg_block)):
-        if i < 16:
+        if i < NUM_BITS:
             curr_string += (str(num))
-        elif i % 16 == 0:
+        elif i % NUM_BITS == 0:
             divided_list.append(curr_string)
             curr_string = ''
             curr_string += (str(num))
@@ -147,7 +149,6 @@ def upper_sigma0(curr_word):
       return bin_num
 
 
-
 def upper_sigma1(curr_word):
     word_val = int(curr_word, 2)
     temp1 = right_rotate(word_val, 6, NUM_BITS)
@@ -163,7 +164,6 @@ def upper_sigma1(curr_word):
         return temp_str
     else:
       return bin_num
-
 
 
 def intialize_state_registers():
@@ -190,6 +190,7 @@ def intialize_state_registers():
 
     return state_registers
 
+
 def choice(e, f, g):
   temp_list = []
   temp_str = ''
@@ -210,6 +211,7 @@ def choice(e, f, g):
     temp_list.clear()
   return temp_str
 
+
 def majority(a, b, c):
     temp_list = []
     temp_str = ''
@@ -221,6 +223,7 @@ def majority(a, b, c):
       temp_str += max(set(temp_list), key=temp_list.count)  # Finds the most frequent number in list
       temp_list.clear()
     return temp_str
+
 
 def compression(message_schedule, constants_list, state_registers):
     original_state_registers = state_registers # perserve original values of hashes
@@ -289,6 +292,12 @@ def compression(message_schedule, constants_list, state_registers):
     return state_registers
 
 
+def get_digest(bin_list):
+    digest = ''
+    for i in bin_list:
+        digest += i[12:]
+    return digest
+
 
 def right_rotate(num, rot, num_bit):
     return (num >> rot) | (num << (num_bit - rot)) & 0xFFFF
@@ -297,7 +306,6 @@ def right_rotate(num, rot, num_bit):
 def main():
     """This is the main function to run our program."""
     constants_list = process_primes(prime_list)  # This list will hold our constants that we calculate at the beginning
-
     user_string = parse_user_input()  # This list will hold the user string's characters, in ASCII, in binary
     len_message_in_binary = len(str(user_string))
     padded_string = pad_message(user_string)
@@ -306,6 +314,9 @@ def main():
     state_registers = intialize_state_registers()  # we'll now need the state registers intialized using the prime numbers
     final_state_registers = compression(message_schedule, constants_list, state_registers)  # compress the words of the schedule into the registers
     print(final_state_registers)
+    digest = get_digest(final_state_registers)
+    print("The encrypted digest is:")
+    print(digest)
 
     # This list will hold registers a-h for the scheduling portion
     #   of the algorithm
