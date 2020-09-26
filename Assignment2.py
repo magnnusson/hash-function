@@ -34,7 +34,7 @@ def parse_user_input():
     user_string = input("Enter a string: ")
     user_string = [letter for letter in user_string]  # split the user's input into separate characters in a list
 
-    for index, letter in enumerate(user_string):
+    for index, letter in enumerate(user_string): # Convert all letters to Ascii
         ascii_val = ord(letter)
         ascii_val = bin(ascii_val)[2:]
         if len(ascii_val) < (NUM_BITS // 2):
@@ -50,7 +50,7 @@ def pad_message(user_string):
     user_string = str(user_string)  # first concatenate a 1 to the message
     user_string += '1'
 
-    while len(user_string) <= 512:  # add 448 0s to the message until we have a length of 512
+    while len(user_string) <= 512:  # add 0s to the message until we have a length of 512
         user_string += '0'
     
     # David - Commented this out, thinking we should just leave as string
@@ -62,10 +62,10 @@ def pad_message(user_string):
 def split_block(msg_block):
     divided_list = []
     curr_string = ''
-    for i, num in enumerate(str(msg_block)):
+    for i, num in enumerate(str(msg_block)): # Divide the msg_block into 64, 16 bit word elements
         if i < NUM_BITS:
             curr_string += (str(num))
-        elif i % NUM_BITS == 0:
+        elif i % NUM_BITS == 0: # If i is greater than NUM_BITS (16) then start a new element
             divided_list.append(curr_string)
             curr_string = ''
             curr_string += (str(num))
@@ -106,7 +106,7 @@ def sigma0(curr_word):
 
     bin_num = bin(temp1)[2:]
 
-    if len(bin_num) < NUM_BITS:
+    if len(bin_num) < NUM_BITS: # Make sure we have length of NUM_BITS (16), if not insert 0s
         temp_str = '0' * (NUM_BITS - len(bin_num))
         temp_str += bin_num
         return temp_str
@@ -216,7 +216,7 @@ def majority(a, b, c):
     temp_list = []
     temp_str = ''
 
-    for index in range(0, len(a)):
+    for index in range(0, len(a)): # We will take the most frequent bit value among 3 words and add to string
       temp_list.append(a[index])
       temp_list.append(b[index])
       temp_list.append(c[index])
@@ -292,14 +292,14 @@ def compression(message_schedule, constants_list, state_registers):
     return state_registers
 
 
-def get_digest(bin_list):
+def get_digest(bin_list): # This function will return the 4 least significant bites from the registers
     digest = ''
     for i in bin_list:
-        digest += i[12:]
+        digest += i[12:] # Append to digest string
     return digest
 
 
-def right_rotate(num, rot, num_bit):
+def right_rotate(num, rot, num_bit): # Function to right rotate a bit string
     return (num >> rot) | (num << (num_bit - rot)) & 0xFFFF
 
 
@@ -308,28 +308,15 @@ def main():
     constants_list = process_primes(prime_list)  # This list will hold our constants that we calculate at the beginning
     user_string = parse_user_input()  # This list will hold the user string's characters, in ASCII, in binary
     len_message_in_binary = len(str(user_string))
-    padded_string = pad_message(user_string)
-    divided_string = split_block(padded_string)
+    padded_string = pad_message(user_string) # Pad the user string with mostly 0s
+    divided_string = split_block(padded_string) # Divide the string into 64 16 bit words
     message_schedule = create_message_schedule(divided_string)
     state_registers = intialize_state_registers()  # we'll now need the state registers intialized using the prime numbers
     final_state_registers = compression(message_schedule, constants_list, state_registers)  # compress the words of the schedule into the registers
     print(final_state_registers)
-    digest = get_digest(final_state_registers)
+    digest = get_digest(final_state_registers) # Get the digest output
     print("The encrypted digest is:")
     print(digest)
-
-    # This list will hold registers a-h for the scheduling portion
-    #   of the algorithm
-    # schedule = []
-    # This list will hold the newly calculated a-h that we will add
-    #   add to the old schedule
-    # schedule_new = []
-    # Temp 1 variable to hold the result of the temp 1 calculation
-    # t1 = 0
-    # Temp 2 variable
-    # t2 = 0
-    # List to hold the output from our encryption algorithm
-    # encrypt_result = []
 
 
 if __name__ == "__main__":
